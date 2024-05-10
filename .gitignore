@@ -1,1 +1,11 @@
 cydownload.pro.user
+
+# Build
+build/
+cmake-build-*/
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/

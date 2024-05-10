@@ -244,41 +244,41 @@ void MainWindow::repoInfoDownloaded()
             continue;
         }
 
-        QRegExp rx("^(.*): (.*)");
-        rx.indexIn(line);
-
-        if (rx.cap(1).trimmed().toLower() == "package")
-            pkg.packageid = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "version")
-            pkg.version = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "section")
-            pkg.section = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "maintainer")
-            pkg.maintainer = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "depends")
-            pkg.depends = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "architecture")
-            pkg.architecture = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "filename")
-            pkg.filename = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "size")
-            pkg.size = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "installed-size")
-            pkg.installedsize = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "md5sum")
-            pkg.md5sum = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "description")
-            pkg.description = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "name")
-            pkg.name = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "author")
-            pkg.author = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "website")
-            pkg.website = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "depiction")
-            pkg.depiction = rx.cap(2).trimmed();
-        else if (rx.cap(1).trimmed().toLower() == "tag")
-            pkg.tags = rx.cap(2).trimmed();
+        QRegularExpression rx(R"(^(.*): (.*))");
+        QRegularExpressionMatch match = rx.match(line);
+        
+        if (match.captured(1).trimmed().toLower() == "package")
+            pkg.packageid = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "version")
+            pkg.version = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "section")
+            pkg.section = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "maintainer")
+            pkg.maintainer = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "depends")
+            pkg.depends = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "architecture")
+            pkg.architecture = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "filename")
+            pkg.filename = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "size")
+            pkg.size = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "installed-size")
+            pkg.installedsize = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "md5sum")
+            pkg.md5sum = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "description")
+            pkg.description = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "name")
+            pkg.name = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "author")
+            pkg.author = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "website")
+            pkg.website = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "depiction")
+            pkg.depiction = match.captured(2).trimmed();
+        else if (match.captured(1).trimmed().toLower() == "tag")
+            pkg.tags = match.captured(2).trimmed();
     }
 
     //and close it

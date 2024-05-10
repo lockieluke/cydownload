@@ -2,8 +2,8 @@
 #include <QFile>
 #include <QTextStream>
 #include <stdlib.h>
-#include "zlib/zlib.h"
-#include "bzip2/bzlib.h"
+#include "zlib.h"
+#include "bzlib.h"
 
 #define CHUNK 1024
 
@@ -189,7 +189,7 @@ void helpers::addRepoToFile(QString url, QString file)
 
     //write to the file
     QTextStream stream( &f );
-    stream << url << endl;
+    stream << url << Qt::endl;
 
     //close the file
     stream.flush();
@@ -220,7 +220,7 @@ void helpers::delRepoFromFile(QString url, QString file)
     QTextStream out( &f );
     for (unsigned long i=0;i<lines.size();i++)
     {
-        out << lines[i] << endl;
+        out << lines[i] << Qt::endl;
     }
     out.flush();
 
