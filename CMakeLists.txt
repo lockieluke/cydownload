@@ -13,6 +13,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_OSX_DEPLOYMENT_TARGET 12.3)
 
+# set cmake install prefix to ~/Applications
+set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/Applications" CACHE PATH "Install path prefix, prepended onto install directories." FORCE)
+
 # Perform build type specific actions
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
@@ -21,6 +24,7 @@ else ()
     set(BUILD_SHARED_LIBS OFF)
 endif ()
 
+# Make app use frameworks from the app bundle
 set(CMAKE_MACOSX_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -42,7 +46,7 @@ qt_add_executable(${PROJECT_NAME} MACOSX_BUNDLE
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${ZLIB_INCLUDE_DIRS} ${BZip2_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Gui Qt6::Network Qt6::Widgets Qt6::DBus BZip2::BZip2 ZLIB::ZLIB)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Gui Qt6::Network Qt6::Widgets Qt6::DBus BZip2::BZip2 ZLIB::ZLIB "-framework Cocoa")
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
         MACOSX_BUNDLE_GUI_IDENTIFIER "me.lockie.${PROJECT_NAME}"
@@ -53,12 +57,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
         INSTALL_RPATH "@executable_path/../Frameworks"
         BUILD_WITH_INSTALL_RPATH TRUE
         MACOSX_RPATH TRUE
-#        XCODE_ATTRIBUTE_DEPLOYMENT_POSTPROCESSING YES
-#        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Mac Developer"
-#        XCODE_ATTRIBUTE_CODE_SIGN_STYLE "Automatic"
-#        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID}
         XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks"
         XCODE_ATTRIBUTE_FRAMEWORK_SEARCH_PATHS "@executable_path/../Frameworks"
+        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID}
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Apple Development"
+        XCODE_ATTRIBUTE_CODE_SIGN_STYLE "Automatic"
+        XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED YES
 )
 
 # Bundle dependencies
@@ -67,6 +71,13 @@ if(CMAKE_GENERATOR MATCHES "Xcode")
 else()
     set(APP_PATH "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${PROJECT_NAME}.app")
 endif()
+
+file(GLOB_RECURSE FRAMEWORKS \"${APP_PATH}/Contents/Frameworks/*\")
+foreach(FRAMEWORK \${FRAMEWORKS})
+    execute_process(COMMAND codesign --force --sign \"${DEVELOPMENT_TEAM_ID}\" \"\${FRAMEWORK}\")
+endforeach()
+
+execute_process(COMMAND codesign --deep --force --sign \"${DEVELOPMENT_TEAM_ID}\" ${APP_PATH})
 
 install(TARGETS ${PROJECT_NAME}
         BUNDLE DESTINATION . COMPONENT Runtime
@@ -78,15 +89,7 @@ install(
         CODE "include(BundleUtilities)
         include(InstallRequiredSystemLibraries)
         message(STATUS \"APP_PATH: ${APP_PATH}\")
-        fixup_bundle(${APP_PATH} \"\" \"\")
-
-        # Sign the frameworks
-        file(GLOB_RECURSE FRAMEWORKS \"${APP_PATH}/Contents/Frameworks/*\")
-        foreach(FRAMEWORK \${FRAMEWORKS})
-            execute_process(COMMAND codesign --deep --force --sign \"${DEVELOPMENT_TEAM_ID}\" \"\${FRAMEWORK}\")
-        endforeach()
-
-        execute_process(COMMAND codesign --deep --force --sign \"${DEVELOPMENT_TEAM_ID}\" ${APP_PATH})
+        fixup_bundle(${APP_PATH} \"\" \"${CMAKE_INSTALL_RPATH}\")
 "
 )
 set(CPACK_GENERATOR "Bundle")
